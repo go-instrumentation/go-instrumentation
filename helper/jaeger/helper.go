@@ -17,7 +17,7 @@ func initTracer(service string) (tracer opentracing.Tracer, closer io.Closer) {
 	if err != nil {
 		panic(fmt.Sprintf("ERROR: cannot init Jaeger: %v\n", err))
 	}
-	if cfg.ServiceName != "" {
+	if cfg.ServiceName == "" {
 		cfg.ServiceName = service
 	}
 	tracer, closer, err = cfg.NewTracer(config.Logger(jaeger.StdLogger))
@@ -36,7 +36,9 @@ func Span(operationName string, serviceName ...string) (span opentracing.Span, c
 	}
 	service := "trace"
 	if len(serviceName) > 0 {
-		service = serviceName[0]
+		if len(serviceName[0]) > 0 {
+			service = serviceName[0]
+		}
 	}
 	tracer, closer := initTracer(service)
 	span = tracer.StartSpan(operationName)
