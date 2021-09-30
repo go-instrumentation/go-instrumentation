@@ -1,4 +1,4 @@
-module go-instrumentation
+module github.com/go-instrumentation/go-instrumentation
 
 go 1.16
 
