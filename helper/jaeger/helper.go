@@ -25,7 +25,11 @@ func initTracer(service string) (tracer opentracing.Tracer, closer io.Closer) {
 			cfg.Sampler.Param = 1
 		}
 	}
-	tracer, closer, err = cfg.NewTracer(config.Logger(jaeger.StdLogger))
+	var options []config.Option
+	if cfg.Reporter.LogSpans {
+		options = append(options, config.Logger(jaeger.StdLogger))
+	}
+	tracer, closer, err = cfg.NewTracer(options...)
 	if err != nil {
 		panic(fmt.Sprintf("ERROR: cannot init Jaeger: %v\n", err))
 	}
