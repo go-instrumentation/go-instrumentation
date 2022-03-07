@@ -1,0 +1,130 @@
+// file:///usr/local/go/src/cmd/compile/fingerprint/fingerprint.go
+package main
+
+import (
+	"cmd/compile/internal/base"
+	"cmd/compile/internal/typecheck"
+	"cmd/compile/internal/types"
+	"cmd/internal/archive"
+	"cmd/internal/bio"
+	"cmd/internal/goobj"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+	var fingerprint goobj.FingerprintType
+	var pkgPath, filepath string
+	args := os.Args[1:]
+	for i, arg := range args {
+		switch arg {
+		case "-pkg":
+			pkgPath = args[i+1]
+		case "-file":
+			filepath = args[i+1]
+		}
+	}
+	importPkg := types.NewPkg(pkgPath, "")
+	f, err := os.Open(filepath)
+	if err != nil {
+		panic(err)
+	}
+	imp := bio.NewReader(f)
+	defer imp.Close()
+	file := f.Name()
+
+	// check object header
+	p, err := imp.ReadString('\n')
+	if err != nil {
+		base.Errorf("import %s: reading input: %v", file, err)
+		base.ErrorExit()
+	}
+
+	if p == "!<arch>\n" { // package archive
+		// package export block should be first
+		sz := archive.ReadHeader(imp.Reader, "__.PKGDEF")
+		if sz <= 0 {
+			base.Errorf("import %s: not a package file", file)
+			base.ErrorExit()
+		}
+		p, err = imp.ReadString('\n')
+		if err != nil {
+			base.Errorf("import %s: reading input: %v", file, err)
+			base.ErrorExit()
+		}
+	}
+
+	if !strings.HasPrefix(p, "go object ") {
+		base.Errorf("import %s: not a go object file: %s", file, p)
+		base.ErrorExit()
+	}
+	//q := objabi.HeaderString()
+	//if p != q {
+	//	panic(fmt.Errorf("import %s: object is [%s] expected [%s]", file, p, q))
+	//}
+
+	// process header lines
+	for {
+		p, err = imp.ReadString('\n')
+		if err != nil {
+			base.Errorf("import %s: reading input: %v", file, err)
+			base.ErrorExit()
+		}
+		if p == "\n" {
+			break // header ends with blank line
+		}
+	}
+
+	// Expect $$B\n to signal binary import format.
+
+	// look for $$
+	var c byte
+	for {
+		c, err = imp.ReadByte()
+		if err != nil {
+			break
+		}
+		if c == '$' {
+			c, err = imp.ReadByte()
+			if c == '$' || err != nil {
+				break
+			}
+		}
+	}
+
+	// get character after $$
+	if err == nil {
+		c, _ = imp.ReadByte()
+	}
+
+	switch c {
+	case '\n':
+		base.Errorf("cannot import %s: old export format no longer supported (recompile library)", pkgPath)
+		return
+	case 'B':
+		if base.Debug.Export != 0 {
+			fmt.Printf("importing %s (%s)\n", filepath, file)
+		}
+		imp.ReadByte() // skip \n after $$B
+
+		c, err = imp.ReadByte()
+		if err != nil {
+			base.Errorf("import %s: reading input: %v", file, err)
+			base.ErrorExit()
+		}
+
+		// Indexed format is distinguished by an 'i' byte,
+		// whereas previous export formats started with 'c', 'd', or 'v'.
+		if c != 'i' {
+			base.Errorf("import %s: unexpected package format byte: %v", file, c)
+			base.ErrorExit()
+		}
+		fingerprint = typecheck.ReadImports(importPkg, imp)
+
+	default:
+		base.Errorf("no import in %q", filepath)
+		base.ErrorExit()
+	}
+	fmt.Printf("%x\n", fingerprint)
+}
