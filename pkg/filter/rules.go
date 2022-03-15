@@ -2,9 +2,9 @@ package filter
 
 type Rule []Filter
 
-func (r Rule) Match(pkg, functionName string) (result bool) {
+func (r Rule) Allow(pkg, functionName string) (result bool) {
 	for _, f := range r {
-		if !f.Match(pkg, functionName) {
+		if !f.Allow(pkg, functionName) {
 			return false
 		}
 	}
@@ -12,7 +12,7 @@ func (r Rule) Match(pkg, functionName string) (result bool) {
 }
 
 var (
-	RulePassProtobuf = Rule{
+	RuleDenyProtobuf = Rule{
 		Contains{
 			AllowList: nil,
 			DenyList: []string{
@@ -29,9 +29,9 @@ var (
 			DenyList: nil,
 		},
 	}
-	// RulePassAlreadyUseJaeger
+	// RuleDenyAlreadyUseJaeger
 	// if you are using vendor mode, the jaeger in the vendor may be difference with $GOSRC/go_instrumentation/jaeger
-	RulePassAlreadyUseJaeger = Rule{
+	RuleDenyAlreadyUseJaeger = Rule{
 		Contains{
 			AllowList: nil,
 			DenyList: []string{
@@ -40,7 +40,7 @@ var (
 			},
 		},
 	}
-	RulePassInternal = Rule{
+	RuleDenyInternal = Rule{
 		Contains{
 			AllowList: nil,
 			DenyList: []string{
@@ -48,7 +48,7 @@ var (
 			},
 		},
 	}
-	RulePassGolang = Rule{
+	RuleDenyGolang = Rule{
 		Prefix{
 			AllowList: nil,
 			DenyList: []string{
@@ -62,7 +62,7 @@ var (
 			},
 		},
 	}
-	RulePassJaeger = Rule{
+	RuleDenyJaeger = Rule{
 		Contains{
 			AllowList: nil,
 			DenyList: []string{
@@ -72,10 +72,11 @@ var (
 			},
 		},
 	}
-	RulePassTooManyDetails = Rule{
+	RuleDenyTooManyDetails = Rule{
 		GoRootFilter,
-		RulePassProtobuf,
-		RulePassJaeger,
+		RuleDenyProtobuf,
+		RuleDenyGolang,
+		RuleDenyJaeger,
 		Contains{
 			AllowList: nil,
 			DenyList: []string{

@@ -9,7 +9,7 @@ type Prefix struct {
 
 var PrefixFilter Prefix
 
-func (f Prefix) Match(pkg, functionName string) (result bool) {
+func (f Prefix) Allow(pkg, functionName string) (result bool) {
 	for _, deny := range f.DenyList {
 		if prefixMatch(deny, pkg, functionName) {
 			return false

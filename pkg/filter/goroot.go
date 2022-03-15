@@ -11,7 +11,7 @@ type GoRoot struct {
 
 var GoRootFilter = GoRoot{}
 
-func (f GoRoot) Match(pkgPath, _ string) (result bool) {
+func (f GoRoot) Allow(pkgPath, _ string) (result bool) {
 	pkg, err := build.Import(pkgPath, "", build.FindOnly)
 	if err != nil {
 		awesome_error.CheckWarning(err)

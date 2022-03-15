@@ -7,7 +7,7 @@ type Contains struct {
 	DenyList  []string
 }
 
-func (f Contains) Match(pkg, functionName string) (result bool) {
+func (f Contains) Allow(pkg, functionName string) (result bool) {
 	for _, deny := range f.DenyList {
 		if contains(deny, pkg, functionName) {
 			return false
