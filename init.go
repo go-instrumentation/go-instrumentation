@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-var LogWriter *os.File
 var WorkId string
 
 func init() {
@@ -23,7 +22,7 @@ func init() {
 
 func Finish() {
 	defer func() {
-		awesome_error.CheckErr(LogWriter.Close())
+		awesome_error.CheckErr(log.CloseFile())
 	}()
 	log.Logger.Infof("=====%s FINISHED====\n\n", WorkId)
 }
