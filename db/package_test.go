@@ -13,13 +13,13 @@ func TestPkgExistsInImportMap(t *testing.T) {
 	assert.NoError(t, os.RemoveAll(sql))
 	Init(sql)
 	{
-		exists, _, err := PkgExistsInImportMap("github.com/go-instrumentation/go-instrumentation/helper/jaeger")
+		exists, _, err := PkgExists("github.com/go-instrumentation/go-instrumentation/helper/jaeger")
 		assert.NoError(t, err)
 		assert.False(t, exists)
 	}
 	{
 		assert.NoError(t, DB.Model(&model.Package{}).Create(&model.Package{PkgPath: "github.com/go-instrumentation/go-instrumentation/helper/jaeger"}).Error)
-		exists, _, err := PkgExistsInImportMap("github.com/go-instrumentation/go-instrumentation/helper/jaeger")
+		exists, _, err := PkgExists("github.com/go-instrumentation/go-instrumentation/helper/jaeger")
 		assert.NoError(t, err)
 		assert.True(t, exists)
 	}

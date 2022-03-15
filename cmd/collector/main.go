@@ -19,7 +19,7 @@ func updatePackage(args []string, f flag) (err error) {
 	if compileFlag.PkgPath == "" {
 		return
 	}
-	db.MustPkgNotExistsInImportMap(compileFlag.PkgPath)
+	db.MustPkgNotExists(compileFlag.PkgPath)
 	compileCommand, err := json.Marshal(args)
 	if err != nil {
 		awesome_error.CheckErr(err)

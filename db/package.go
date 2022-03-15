@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func PkgExistsInImportMap(pkgPath string) (exists bool, pkg model.Package, err error) {
+func PkgExists(pkgPath string) (exists bool, pkg model.Package, err error) {
 	pkg, err = FindPkgByPkgPath(pkgPath)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -22,8 +22,8 @@ func PkgExistsInImportMap(pkgPath string) (exists bool, pkg model.Package, err e
 	return
 }
 
-func MustPkgNotExistsInImportMap(pkgPath string) {
-	exists, _, err := PkgExistsInImportMap(pkgPath)
+func MustPkgNotExists(pkgPath string) {
+	exists, _, err := PkgExists(pkgPath)
 	if exists {
 		err = fmt.Errorf("pkg %s already exists", pkgPath)
 	}
