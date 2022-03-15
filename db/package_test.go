@@ -44,3 +44,11 @@ func TestUpdatePkg(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, pkg.CfgPath, "a")
 }
+
+func TestListPackages(t *testing.T) {
+	sql := "/tmp/instrumentation.sqlite"
+	assert.NoError(t, os.RemoveAll(sql))
+	Init(sql)
+	_, err := ListPackages()
+	assert.NoError(t, err)
+}

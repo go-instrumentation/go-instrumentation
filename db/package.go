@@ -76,3 +76,12 @@ func UpdatePkg(pkg model.Package) (err error) {
 	}
 	return
 }
+
+func ListPackages() (packages []model.Package, err error) {
+	err = DB.Model(&model.Package{}).Find(&packages).Error
+	if err != nil {
+		awesome_error.CheckErr(err)
+		return
+	}
+	return
+}
