@@ -11,15 +11,15 @@ type GoRoot struct {
 
 var GoRootFilter = GoRoot{}
 
-func (f GoRoot) Allow(pkgPath, _ string) (result bool) {
-	pkg, err := build.Import(pkgPath, "", build.FindOnly)
+func (f GoRoot) Allow(targetObject Object) (allow bool) {
+	pkg, err := build.Import(targetObject.Package, "", build.FindOnly)
 	if err != nil {
 		awesome_error.CheckWarning(err)
 		log.Logger.Warnf("pkg.Goroot=%v", pkg.Goroot)
 	}
-	result = !pkg.Goroot
-	if !result {
-		log.Logger.Infof("pass %s because of pkg.Goroot", pkgPath)
+	allow = !pkg.Goroot
+	if !allow {
+		log.Logger.Infof("pass %s because of pkg.Goroot", targetObject.Package)
 	}
 	return
 }

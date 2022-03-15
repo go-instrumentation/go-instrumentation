@@ -2,9 +2,9 @@ package filter
 
 type Rule []Filter
 
-func (r Rule) Allow(pkg, functionName string) (result bool) {
+func (r Rule) Allow(targetObject Object) (allow bool) {
 	for _, f := range r {
-		if !f.Allow(pkg, functionName) {
+		if !f.Allow(targetObject) {
 			return false
 		}
 	}
@@ -69,6 +69,14 @@ var (
 				"github.com/opentracing/opentracing-go",
 				"github.com/uber/jaeger-client-go",
 				"github.com/uber/jaeger-lib",
+			},
+		},
+	}
+	RuleDenyPbDotGo = Rule{
+		Regex{
+			AllowList: nil,
+			DenyList: []string{
+				":.*\\.pb\\.go::",
 			},
 		},
 	}
