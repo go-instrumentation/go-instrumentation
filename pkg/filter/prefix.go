@@ -9,9 +9,9 @@ type Prefix struct {
 
 var PrefixFilter Prefix
 
-func (f Prefix) Allow(pkg, functionName string) (result bool) {
-	for _, deny := range f.DenyList {
-		if prefixMatch(deny, pkg, functionName) {
+func (f Prefix) Allow(targetObject Object) (allow bool) {
+	for _, rule := range f.DenyList {
+		if prefixMatch(rule, targetObject) {
 			return false
 		}
 	}
@@ -22,25 +22,25 @@ func (f Prefix) Allow(pkg, functionName string) (result bool) {
 		if rule == "*" {
 			return true
 		}
-		if prefixMatch(rule, pkg, functionName) {
+		if prefixMatch(rule, targetObject) {
 			return true
 		}
 	}
 	return false
 }
 
-func prefixMatch(rule, pkg, functionName string) (match bool) {
-	rulePkg, ruleFunctionName := parseRule(rule)
-	if strings.HasSuffix(rulePkg, "*") { // means no functionName
-		if strings.HasPrefix(pkg, strings.TrimSuffix(rulePkg, "*")) {
+func prefixMatch(rule string, targetObject Object) (match bool) {
+	ruleObject := ParseRule(rule)
+	if strings.HasSuffix(ruleObject.Package, "*") { // means no functionName
+		if strings.HasPrefix(targetObject.Package, strings.TrimSuffix(ruleObject.Package, "*")) {
 			return true
 		}
 	} else { // may have functionName
-		if rulePkg == pkg {
-			if ruleFunctionName == "" {
+		if ruleObject.Package == targetObject.Package {
+			if ruleObject.FunctionName == "" {
 				return true
 			} else {
-				return ruleFunctionName == functionName
+				return ruleObject.FunctionName == targetObject.FunctionName
 			}
 		}
 	}

@@ -7,9 +7,9 @@ type Contains struct {
 	DenyList  []string
 }
 
-func (f Contains) Allow(pkg, functionName string) (result bool) {
+func (f Contains) Allow(targetObject Object) (allow bool) {
 	for _, deny := range f.DenyList {
-		if contains(deny, pkg, functionName) {
+		if contains(deny, targetObject) {
 			return false
 		}
 	}
@@ -17,14 +17,14 @@ func (f Contains) Allow(pkg, functionName string) (result bool) {
 		return true
 	}
 	for _, rule := range f.AllowList {
-		if contains(rule, pkg, functionName) {
+		if contains(rule, targetObject) {
 			return true
 		}
 	}
 	return false
 }
 
-func contains(rule, pkg, functionName string) (match bool) {
-	rulePkg, ruleFunctionName := parseRule(rule)
-	return strings.Contains(pkg, rulePkg) && strings.Contains(functionName, ruleFunctionName)
+func contains(ruleRaw string, targetObject Object) (match bool) {
+	ruleObject := ParseRule(ruleRaw)
+	return strings.Contains(targetObject.Package, ruleObject.Package) && strings.Contains(targetObject.FunctionName, ruleObject.FunctionName)
 }
