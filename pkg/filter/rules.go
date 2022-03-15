@@ -12,6 +12,14 @@ func (r Rule) Allow(targetObject Object) (allow bool) {
 }
 
 var (
+	RuleDenyPbDotGo = Rule{
+		Regex{
+			AllowList: nil,
+			DenyList: []string{
+				":.*\\.pb\\.go::",
+			},
+		},
+	}
 	RuleDenyProtobuf = Rule{
 		Contains{
 			AllowList: nil,
@@ -20,6 +28,7 @@ var (
 				"github.com/gogo/protobuf",
 			},
 		},
+		RuleDenyPbDotGo,
 	}
 	RuleOnlyMain = Rule{
 		Prefix{
@@ -69,14 +78,6 @@ var (
 				"github.com/opentracing/opentracing-go",
 				"github.com/uber/jaeger-client-go",
 				"github.com/uber/jaeger-lib",
-			},
-		},
-	}
-	RuleDenyPbDotGo = Rule{
-		Regex{
-			AllowList: nil,
-			DenyList: []string{
-				":.*\\.pb\\.go::",
 			},
 		},
 	}
