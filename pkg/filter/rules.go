@@ -12,6 +12,14 @@ func (r Rule) Allow(targetObject Object) (allow bool) {
 }
 
 var (
+	RuleDenyGoInstrumentationFamily = Rule{
+		Contains{
+			AllowList: nil,
+			DenyList: []string{
+				"github.com/go-instrumentation",
+			},
+		},
+	}
 	RuleDenyPbDotGo = Rule{
 		Regex{
 			AllowList: nil,
@@ -82,6 +90,7 @@ var (
 		},
 	}
 	RuleDenyTooManyDetails = Rule{
+		RuleDenyGoInstrumentationFamily,
 		GoRootFilter,
 		RuleDenyProtobuf,
 		RuleDenyGolang,
