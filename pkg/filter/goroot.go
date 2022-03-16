@@ -12,6 +12,10 @@ type GoRoot struct {
 var GoRootFilter = GoRoot{}
 
 func (f GoRoot) Allow(targetObject Object) (allow bool) {
+	if targetObject.Package == "" {
+		allow = true
+		return
+	}
 	pkg, err := build.Import(targetObject.Package, "", build.FindOnly)
 	if err != nil {
 		awesome_error.CheckWarning(err)
