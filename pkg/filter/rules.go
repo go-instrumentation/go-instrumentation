@@ -90,7 +90,6 @@ var (
 		},
 	}
 	RuleDenyTooManyDetails = Rule{
-		RuleDenyGoInstrumentationFamily,
 		GoRootFilter,
 		RuleDenyProtobuf,
 		RuleDenyGolang,
