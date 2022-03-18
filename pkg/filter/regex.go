@@ -3,6 +3,7 @@ package filter
 import "regexp"
 
 type Regex struct {
+	Base
 	AllowList []string
 	DenyList  []string
 }
@@ -10,18 +11,24 @@ type Regex struct {
 func (f Regex) Allow(targetObject Object) (allow bool) {
 	for _, rule := range f.DenyList {
 		if regexMatch(rule, targetObject) {
-			return false
+			debug(f, rule, targetObject, allow)
+			return
 		}
 	}
 	if f.AllowList == nil {
-		return true
+		allow = true
+		debug(f, "AllowList == nil", targetObject, allow)
+		return
 	}
 	for _, rule := range f.AllowList {
 		if rule == "*" {
-			return true
+			allow = true
+			debug(f, rule, targetObject, allow)
+			return
 		}
 		if regexMatch(rule, targetObject) {
-			return true
+			allow = true
+			debug(f, rule, targetObject, allow)
 		}
 	}
 	return

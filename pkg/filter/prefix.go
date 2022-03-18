@@ -3,30 +3,37 @@ package filter
 import "strings"
 
 type Prefix struct {
+	Base
 	AllowList []string
 	DenyList  []string
 }
 
-var PrefixFilter Prefix
-
 func (f Prefix) Allow(targetObject Object) (allow bool) {
 	for _, rule := range f.DenyList {
 		if prefixMatch(rule, targetObject) {
-			return false
+			debug(f, rule, targetObject, allow)
+			return
 		}
 	}
 	if f.AllowList == nil {
-		return true
+		allow = true
+		debug(f, "AllowList == nil", targetObject, allow)
+		return
 	}
 	for _, rule := range f.AllowList {
 		if rule == "*" {
-			return true
+			allow = true
+			debug(f, rule, targetObject, allow)
+			return
 		}
 		if prefixMatch(rule, targetObject) {
-			return true
+			allow = true
+			debug(f, rule, targetObject, allow)
+			return
 		}
 	}
-	return false
+	debug(f, "no matching rule", targetObject, allow)
+	return
 }
 
 func prefixMatch(rule string, targetObject Object) (match bool) {

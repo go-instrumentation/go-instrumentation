@@ -1,21 +1,37 @@
 package filter
 
+import "fmt"
+
 type Rule []Filter
 
 var GlobalRule Rule
 
+func (r Rule) GetName() string {
+	var names []string
+	for _, rule := range r {
+		names = append(names, rule.GetName())
+	}
+	return fmt.Sprintf("%q", names)
+}
+
 func (r Rule) Allow(targetObject Object) (allow bool) {
 	for _, f := range r {
 		if !f.Allow(targetObject) {
-			return false
+			debug(f, "", targetObject, allow)
+			return
 		}
 	}
-	return true
+	allow = true
+	debug(r, "", targetObject, allow)
+	return
 }
 
 var (
 	RuleDenyGoInstrumentationFamily = Rule{
 		Contains{
+			Base: Base{
+				Name: "RuleDenyGoInstrumentationFamily",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"github.com/go-instrumentation",
@@ -24,6 +40,9 @@ var (
 	}
 	RuleDenyPbDotGo = Rule{
 		Regex{
+			Base: Base{
+				Name: "RuleDenyPbDotGo",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				":.*\\.pb\\.go::",
@@ -32,6 +51,9 @@ var (
 	}
 	RuleDenyProtobuf = Rule{
 		Contains{
+			Base: Base{
+				Name: "RuleDenyProtobuf",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"github.com/golang/protobuf",
@@ -42,6 +64,9 @@ var (
 	}
 	RuleOnlyMain = Rule{
 		Prefix{
+			Base: Base{
+				Name: "RuleOnlyMain",
+			},
 			AllowList: []string{
 				"main",
 			},
@@ -52,6 +77,9 @@ var (
 	// if you are using vendor mode, the jaeger in the vendor may be difference with $GOSRC/go_instrumentation/jaeger
 	RuleDenyAlreadyUseJaeger = Rule{
 		Contains{
+			Base: Base{
+				Name: "RuleDenyAlreadyUseJaeger",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc",
@@ -61,6 +89,9 @@ var (
 	}
 	RuleDenyInternal = Rule{
 		Contains{
+			Base: Base{
+				Name: "RuleDenyInternal",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"internal",
@@ -69,12 +100,18 @@ var (
 	}
 	RuleDenyGolang = Rule{
 		Prefix{
+			Base: Base{
+				Name: "RuleDenyGolang",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"runtime*",
 			},
 		},
 		Contains{
+			Base: Base{
+				Name: "RuleDenyGolang",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"golang.org",
@@ -83,6 +120,9 @@ var (
 	}
 	RuleDenyJaeger = Rule{
 		Contains{
+			Base: Base{
+				Name: "RuleDenyJaeger",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"github.com/opentracing/opentracing-go",
@@ -97,6 +137,9 @@ var (
 		RuleDenyGolang,
 		RuleDenyJaeger,
 		Contains{
+			Base: Base{
+				Name: "RuleDenyTooManyDetails",
+			},
 			AllowList: nil,
 			DenyList: []string{
 				"github.com/checkpoint-restore/go-criu",

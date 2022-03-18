@@ -7,13 +7,17 @@ import (
 )
 
 type GoRoot struct {
+	Base
 }
 
-var GoRootFilter = GoRoot{}
+var GoRootFilter = GoRoot{
+	Base{Name: "GoRootFilter"},
+}
 
 func (f GoRoot) Allow(targetObject Object) (allow bool) {
 	if targetObject.Package == "" {
 		allow = true
+		debug(f, "", targetObject, allow)
 		return
 	}
 	pkg, err := build.Import(targetObject.Package, "", build.FindOnly)
@@ -22,8 +26,6 @@ func (f GoRoot) Allow(targetObject Object) (allow bool) {
 		log.Logger.Warnf("pkg.Goroot=%v", pkg.Goroot)
 	}
 	allow = !pkg.Goroot
-	if !allow {
-		log.Logger.Infof("pass %s because of pkg.Goroot", targetObject.Package)
-	}
+	debug(f, "pkg.Goroot", targetObject, allow)
 	return
 }

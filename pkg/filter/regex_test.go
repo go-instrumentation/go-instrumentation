@@ -39,6 +39,18 @@ func Test_regexMatch(t *testing.T) {
 			},
 			wantMatch: true,
 		},
+		{
+			name: "real world",
+			args: args{
+				rule: "github.com/containerd/containerd/.*",
+				targetObject: Object{
+					Package:      "vendor/github.com/containerd/containerd/a",
+					Filepath:     "a",
+					FunctionName: "func",
+				},
+			},
+			wantMatch: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
