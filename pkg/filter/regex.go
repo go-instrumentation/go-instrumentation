@@ -10,7 +10,7 @@ type Regex struct {
 
 func (f Regex) Allow(targetObject Object) (allow bool) {
 	for _, rule := range f.DenyList {
-		if regexMatch(rule, targetObject) {
+		if regexMatch(rule, targetObject, false) {
 			debug(f, rule, targetObject, allow)
 			return
 		}
@@ -21,7 +21,7 @@ func (f Regex) Allow(targetObject Object) (allow bool) {
 		return
 	}
 	for _, rule := range f.AllowList {
-		if regexMatch(rule, targetObject) {
+		if regexMatch(rule, targetObject, true) {
 			allow = true
 			debug(f, rule, targetObject, allow)
 		}
@@ -29,9 +29,16 @@ func (f Regex) Allow(targetObject Object) (allow bool) {
 	return
 }
 
-func regexMatch(rule string, targetObject Object) (match bool) {
+func regexMatch(rule string, targetObject Object, matchEmpty bool) (match bool) {
 	ruleObject := ParseRule(rule)
-	return (targetObject.Package == "" || regexp.MustCompile(ruleObject.Package).MatchString(targetObject.Package)) &&
-		(targetObject.Filepath == "" || regexp.MustCompile(ruleObject.Filepath).MatchString(targetObject.Filepath)) &&
-		(targetObject.FunctionName == "" || regexp.MustCompile(ruleObject.FunctionName).MatchString(targetObject.FunctionName))
+	var matchPackage, matchFilepath, matchFunctionName bool
+	if matchEmpty {
+		matchPackage = targetObject.Package == ""
+		matchFilepath = targetObject.Filepath == ""
+		matchFunctionName = targetObject.FunctionName == ""
+	}
+	matchPackage = matchPackage || regexp.MustCompile(ruleObject.Package).MatchString(targetObject.Package)
+	matchFilepath = matchFilepath || regexp.MustCompile(ruleObject.Filepath).MatchString(targetObject.Filepath)
+	matchFunctionName = matchFunctionName || regexp.MustCompile(ruleObject.FunctionName).MatchString(targetObject.FunctionName)
+	return matchPackage && matchFilepath && matchFunctionName
 }
