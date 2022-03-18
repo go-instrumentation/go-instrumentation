@@ -2,6 +2,8 @@ package filter
 
 type Rule []Filter
 
+var GlobalRule Rule
+
 func (r Rule) Allow(targetObject Object) (allow bool) {
 	for _, f := range r {
 		if !f.Allow(targetObject) {
