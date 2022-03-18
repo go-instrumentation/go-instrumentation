@@ -14,5 +14,6 @@ func TestRule_Match(t *testing.T) {
 	assert.True(t, RuleDenyPbDotGo.Allow(Object{Filepath: "main.go"}))
 	assert.True(t, RuleDenyTooManyDetails.Allow(Object{Package: "main"}))
 	assert.False(t, RuleDenyTooManyDetails.Allow(Object{Package: "context"}))
-	assert.True(t, Regex{Base: Base{Name: "regex"}, AllowList: []string{"main"}, DenyList: []string{}}.Allow(Object{Package: "", Filepath: "a.go", FunctionName: ""}))
+	assert.True(t, Regex{AllowList: []string{"main"}}.Allow(Object{Package: "main", Filepath: "a.go"}))
+	assert.False(t, Regex{AllowList: []string{"main", "pkg:a.go"}}.Allow(Object{Filepath: "b.go"}))
 }

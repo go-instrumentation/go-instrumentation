@@ -54,7 +54,7 @@ func Test_regexMatch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.wantMatch, regexMatch(tt.args.rule, tt.args.targetObject), "regexMatch(%v, %v)", tt.args.rule, tt.args.targetObject)
+			assert.Equalf(t, tt.wantMatch, regexMatch(tt.args.rule, tt.args.targetObject, true), "regexMatch(%v, %v)", tt.args.rule, tt.args.targetObject)
 		})
 	}
 }

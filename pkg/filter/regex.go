@@ -33,11 +33,10 @@ func regexMatch(rule string, targetObject Object, matchEmpty bool) (match bool) 
 	ruleObject := ParseRule(rule)
 	var matchPackage, matchFilepath, matchFunctionName bool
 	if matchEmpty {
-		matchPackage = targetObject.Package == ""
 		matchFilepath = targetObject.Filepath == ""
 		matchFunctionName = targetObject.FunctionName == ""
 	}
-	matchPackage = matchPackage || regexp.MustCompile(ruleObject.Package).MatchString(targetObject.Package)
+	matchPackage = regexp.MustCompile(ruleObject.Package).MatchString(targetObject.Package)
 	matchFilepath = matchFilepath || regexp.MustCompile(ruleObject.Filepath).MatchString(targetObject.Filepath)
 	matchFunctionName = matchFunctionName || regexp.MustCompile(ruleObject.FunctionName).MatchString(targetObject.FunctionName)
 	return matchPackage && matchFilepath && matchFunctionName
