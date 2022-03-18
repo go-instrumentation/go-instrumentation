@@ -17,7 +17,7 @@ var GoRootFilter = GoRoot{
 func (f GoRoot) Allow(targetObject Object) (allow bool) {
 	if targetObject.Package == "" {
 		allow = true
-		debug(f, "", targetObject, allow)
+		debug(f, `targetObject.Package == ""`, targetObject, allow)
 		return
 	}
 	pkg, err := build.Import(targetObject.Package, "", build.FindOnly)

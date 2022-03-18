@@ -2,13 +2,13 @@ package filter
 
 type Filter interface {
 	Allow(targetObject Object) (allow bool)
-	GetName() string
+	String() string
 }
 
 type Base struct {
 	Name string
 }
 
-func (b Base) GetName() string {
+func (b Base) String() string {
 	return b.Name
 }
