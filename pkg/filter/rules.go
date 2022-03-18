@@ -5,7 +5,9 @@ type Rule struct {
 	Rule []Filter
 }
 
-var GlobalRule Rule
+var GlobalRule = Rule{
+	Base: Base{Name: "GlobalRule"},
+}
 
 func (r Rule) Allow(targetObject Object) (allow bool) {
 	check(r, targetObject)
