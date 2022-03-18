@@ -21,11 +21,6 @@ func (f Regex) Allow(targetObject Object) (allow bool) {
 		return
 	}
 	for _, rule := range f.AllowList {
-		if rule == "*" {
-			allow = true
-			debug(f, rule, targetObject, allow)
-			return
-		}
 		if regexMatch(rule, targetObject) {
 			allow = true
 			debug(f, rule, targetObject, allow)
@@ -36,7 +31,7 @@ func (f Regex) Allow(targetObject Object) (allow bool) {
 
 func regexMatch(rule string, targetObject Object) (match bool) {
 	ruleObject := ParseRule(rule)
-	return regexp.MustCompile(ruleObject.Package).MatchString(targetObject.Package) &&
-		regexp.MustCompile(ruleObject.Filepath).MatchString(targetObject.Filepath) &&
-		regexp.MustCompile(ruleObject.FunctionName).MatchString(targetObject.FunctionName)
+	return (targetObject.Package == "" || regexp.MustCompile(ruleObject.Package).MatchString(targetObject.Package)) &&
+		(targetObject.Filepath == "" || regexp.MustCompile(ruleObject.Filepath).MatchString(targetObject.Filepath)) &&
+		(targetObject.FunctionName == "" || regexp.MustCompile(ruleObject.FunctionName).MatchString(targetObject.FunctionName))
 }
