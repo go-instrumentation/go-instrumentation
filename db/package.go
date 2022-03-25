@@ -47,6 +47,44 @@ func FindPkgByPkgPath(pkgPath string) (pkg model.Package, err error) {
 	return
 }
 
+func FindPkgByImportPath(importPath string) (pkg model.Package, err error) {
+	if importPath == "" {
+		err = fmt.Errorf("empty importPath")
+		awesome_error.CheckErr(err)
+		return model.Package{}, err
+	}
+	err = DB.Model(&model.Package{}).Where(&model.Package{ImportPath: importPath}).First(&pkg).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return
+		}
+		awesome_error.CheckErr(err)
+		return
+	}
+	return
+}
+
+func FindPkgByPkgPathOrImportPath(pkgPath string, importPath string) (pkg model.Package, err error) {
+	pkg, err = FindPkgByPkgPath(pkgPath)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		} else {
+			awesome_error.CheckErr(err)
+			return
+		}
+	}
+	pkg, err = FindPkgByImportPath(importPath)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return
+		}
+		awesome_error.CheckErr(err)
+		return
+	}
+	return
+}
+
 func CreatePkg(pkg model.Package) (err error) {
 	lock.Lock()
 	defer lock.Unlock()
