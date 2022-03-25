@@ -4,13 +4,26 @@ import (
 	"context"
 	"fmt"
 	"github.com/opentracing/opentracing-go"
+	"github.com/ssst0n3/awesome_libs/awesome_error"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
 	"io"
+	"os"
+	"strconv"
 )
 
 var Context context.Context
 var IsGlobalRegistered bool
+var MaxTagLength int
+
+func init() {
+	env := os.Getenv("JAEGER_MAX_TAG_LENGTH")
+	if env != "" {
+		var err error
+		MaxTagLength, err = strconv.Atoi(env)
+		awesome_error.CheckFatal(err)
+	}
+}
 
 func initTracer(service string) (tracer opentracing.Tracer, closer io.Closer) {
 	cfg, err := config.FromEnv()
@@ -28,6 +41,9 @@ func initTracer(service string) (tracer opentracing.Tracer, closer io.Closer) {
 	var options []config.Option
 	if cfg.Reporter.LogSpans {
 		options = append(options, config.Logger(jaeger.StdLogger))
+	}
+	if MaxTagLength > 0 {
+		options = append(options, config.MaxTagValueLength(MaxTagLength))
 	}
 	tracer, closer, err = cfg.NewTracer(options...)
 	if err != nil {
