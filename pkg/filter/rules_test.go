@@ -16,4 +16,18 @@ func TestRule_Match(t *testing.T) {
 	assert.False(t, RuleDenyTooManyDetails.Allow(Object{Package: "context"}))
 	assert.True(t, Regex{AllowList: []string{"main"}}.Allow(Object{Package: "main", Filepath: "a.go"}))
 	assert.False(t, Regex{AllowList: []string{"main", "pkg:a.go"}}.Allow(Object{Filepath: "b.go"}))
+	assert.False(t, Regex{DenyList: []string{"k8s.io/cri-api/pkg/apis/runtime/v1:::&.*\\.MarshalToSizedBuffer"}}.Allow(
+		Object{
+			Package:      "k8s.io/cri-api/pkg/apis/runtime/v1",
+			Filepath:     "a.go",
+			FunctionName: "&ContainerMetadata.MarshalToSizedBuffer",
+		},
+	))
+	assert.True(t, Regex{AllowList: []string{"github.com/containerd/containerd/pkg/cri/server:container_create.go::.*CreateContainer.*"}}.Allow(
+		Object{
+			Package:      "github.com/containerd/containerd/pkg/cri/server",
+			Filepath:     "container_create.go",
+			FunctionName: "&criService.CreateContainer",
+		},
+	))
 }
